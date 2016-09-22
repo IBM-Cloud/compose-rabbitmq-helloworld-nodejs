@@ -1,0 +1,7 @@
+---
+applications:
+- name:    compose-rabbitmq-helloworld-nodejs
+  host:    compose-rabbitmq-helloworld-nodejs
+  memory:  128M
+  services:
+    - my-compose-for-rabbitmq-service
