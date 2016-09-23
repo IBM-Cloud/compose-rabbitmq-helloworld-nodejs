@@ -32,7 +32,7 @@ compose-rabbitmq-helloworld-nodejs is a sample Bluemix application that shows yo
   **Note :** The Compose for RabbitMQ service does not offer a free plan. For details of pricing, see the _Pricing Plans_ section of the [Compose for RabbitMQ service][compose_for_rabbitmq_url] in Bluemix.
 
   ```
-  $ cf create-service compose-rabbitmq-helloworld-nodejs Standard my-compose-for-rabbitmq-service
+  $ cf create-service compose-for-rabbitmq Standard my-compose-for-rabbitmq-service
   ```
 
 8. Push the app to Bluemix.
