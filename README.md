@@ -35,7 +35,13 @@ compose-rabbitmq-helloworld-nodejs is a sample Bluemix application that shows yo
   $ cf create-service compose-for-rabbitmq Standard my-compose-for-rabbitmq-service
   ```
 
-8. Push the app to Bluemix.
+8. Bind the service to the application.
+
+  ```
+  $ cf bind-service compose-rabbitmq-helloworld-nodejs my-compose-for-rabbitmq-service
+  ```
+
+9. Push the app to Bluemix.
 
   ```
   $ cf push
