@@ -30,7 +30,7 @@ const util = require('util')
 const assert = require('assert');
 
 // We want to extract the port to publish our app on
-var port = process.env.VCAP_APP_PORT || 8080;
+var port = process.env.PORT || 8080;
 
 // Then we'll pull in the database client library
 // Rabbitmq uses AMQP as a protocol, so this is a generic library for the protocol
@@ -109,7 +109,7 @@ app.get("/message", function(request, response) {
             });
             // Now we attempt to get a message from our queue
             ch.get(q, {}, function(err, msgOrFalse) {
-                
+
                 // If the get() call got a message, write the message to
                 // the response and then acknowledge the message so it is
                 // removed from the queue
