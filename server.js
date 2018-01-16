@@ -54,7 +54,7 @@ var credentials = rabbitmq_services[0].credentials;
 // Within the credentials, an entry ca_certificate_base64 contains the SSL pinning key
 // We convert that from a string into a Buffer entry in an array which we use when
 // connecting.
-var caCert = new Buffer(credentials.ca_certificate_base64, 'base64');
+var caCert = new Buffer.from(credentials.ca_certificate_base64, 'base64');
 
 /// This is the ampqnode connection. From the application environment, we got the
 // credentials and the credentials contain a URI for the database. Here, we
@@ -109,7 +109,9 @@ app.get("/message", function(request, response) {
             });
             // Now we attempt to get a message from our queue
             ch.get(q, {}, function(err, msgOrFalse) {
-
+                response.writeHead(200, {
+                    "Content-Type": "text/plain"
+                });
                 // If the get() call got a message, write the message to
                 // the response and then acknowledge the message so it is
                 // removed from the queue
@@ -133,5 +135,3 @@ app.get("/message", function(request, response) {
 
 // Now we go and listen for a connection.
 app.listen(port);
-
-require("cf-deployment-tracker-client").track();
