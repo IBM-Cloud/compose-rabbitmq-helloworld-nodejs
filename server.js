@@ -32,8 +32,8 @@ app.use(
 
 // Util is handy to have around, so thats why that's here.
 // and so is assert
-const util = require('util')
-const assert = require('assert');
+const util = require("util");
+const assert = require("assert");
 
 // We want to extract the port to publish our app on
 let port = process.env.PORT || 8080;
@@ -51,19 +51,9 @@ function bail(err, conn) {
 }
 
 // Now lets get cfenv and ask it to parse the environment variable
-let cfenv = require('cfenv');
 
-// load local VCAP configuration  and service credentials
-let vcapLocal;
-try {
-  vcapLocal = require('./vcap-local.json');
-  console.log("Loaded local VCAP");
-} catch (e) { 
-    // console.log(e)
-}
-
-const appEnvOpts = vcapLocal ? { vcap: vcapLocal} : {}
-const appEnv = cfenv.getAppEnv(appEnvOpts);
+var cfenv = require("cfenv");
+var appenv = cfenv.getAppEnv();
 
 // Within the application environment (appenv) there's a services object
 let services = appEnv.services;
@@ -72,7 +62,10 @@ let services = appEnv.services;
 let rabbitmq_services = services["compose-for-rabbitmq"];
 
 // This check ensures there is a services for RabbitMQ databases
-assert(!util.isUndefined(rabbitmq_services), "Must be bound to compose-for-rabbitmq services");
+assert(
+  !util.isUndefined(rabbitmq_services),
+  "Must be bound to compose-for-rabbitmq services"
+);
 
 // We now take the first bound RabbitMQ service and extract its credentials object
 let credentials = rabbitmq_services[0].credentials;
@@ -80,11 +73,23 @@ let credentials = rabbitmq_services[0].credentials;
 // Connect using a connection string from the credentials
 let connectionString = credentials.uri;
 
-let parsedurl = url.parse(connectionString);
+var options = {};
 
-let options = {
-    servername: parsedurl.hostname
-};
+if (credentials.uri.includes("composedb.com")) {
+  var uri = url.parse(credentials.uri);
+  options = {
+    servername: uri.hostname
+  };
+} else {
+  // Within the credentials, an entry ca_certificate_base64 contains the SSL pinning key
+  // We convert that from a string into a Buffer entry in an array which we use when
+  // connecting.
+  var caCert = new Buffer.from(credentials.ca_certificate_base64, "base64");
+
+  options = {
+    ca: [caCert] // Trusted certificates
+  };
+}
 
 // Bind a queue to the exchange to listen for messages
 // When we publish a message, it will be sent to this queue, via the exchange
@@ -209,6 +214,7 @@ app.put("/message", function(request, response) {
             console.log("error:", err);
             response.status(500).send(err);
         });
+
 });
 
 // Read from the database when the page is loaded or after a word is successfully added
@@ -228,3 +234,4 @@ app.get("/message", function(request, response) {
 app.listen(port, function() {
     console.log("Server is listening on port " + port);
 });
+

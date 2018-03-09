@@ -84,8 +84,7 @@ The app uses a PUT and a GET operation:
   - uses `assertQueue` method to retrieve the message from the _words_ queue
   - returns the response from the queue to [main.js](public/javascript/main.js)
 
-
-
 [compose_for_rabbitmq_url]: https://console.bluemix.net/catalog/services/compose-for-rabbitmq/
 [IBMCloud_signup_url]: https://ibm.biz/compose-for-rabbitmq-signup
+
 
