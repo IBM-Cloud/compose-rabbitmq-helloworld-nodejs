@@ -53,7 +53,18 @@ function bail(err, conn) {
 // Now lets get cfenv and ask it to parse the environment variable
 
 var cfenv = require("cfenv");
-var appenv = cfenv.getAppEnv();
+
+// load local VCAP configuration  and service credentials
+let vcapLocal;
+try {
+  vcapLocal = require('./vcap-local.json');
+  console.log("Loaded local VCAP");
+} catch (e) { 
+    // console.log(e)
+}
+
+const appEnvOpts = vcapLocal ? { vcap: vcapLocal} : {}
+const appEnv = cfenv.getAppEnv(appEnvOpts);
 
 // Within the application environment (appenv) there's a services object
 let services = appEnv.services;
@@ -101,6 +112,10 @@ amqp.connect(connectionString, options, function(
     err,
     conn
 ) {
+    if(err) {
+        console.log(err);
+        process.exit(1);
+    }
     conn.createChannel(function(err, ch) {
         ch.assertExchange(exchangeName, "direct", { durable: true });
         ch.assertQueue(qName, { exclusive: false }, function(err, q) {
@@ -117,7 +132,7 @@ amqp.connect(connectionString, options, function(
 function addMessage(message) {
     return new Promise(function(resolve, reject) {
         // To send a message, we first open a connection
-        amqp.connect(connectionString, { servername: parsedurl.hostname }, function(
+        amqp.connect(connectionString, options, function(
             err,
             conn
         ) {
@@ -154,7 +169,7 @@ function addMessage(message) {
 function getMessage() {
     return new Promise(function(resolve, reject) {
         // To receive a message, we first open a connection
-        amqp.connect(connectionString, { servername: parsedurl.hostname }, function(
+        amqp.connect(connectionString, options , function(
             err,
             conn
         ) {
